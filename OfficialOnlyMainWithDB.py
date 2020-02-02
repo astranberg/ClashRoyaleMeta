@@ -193,7 +193,6 @@ def main(num_runs, b_update_databases, max_player_tags):
         header_print('GATHERING BATTLES', 100)
         asyncio.run(battlefinder(lClanPlayersTags))
 
-
 main(2, False, 500000)
 
 cursor.close()

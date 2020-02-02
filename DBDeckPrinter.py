@@ -168,8 +168,8 @@ def battleDeckPrinter(battle_type, min_trophies, max_trophies, trophystep, max_b
     print('Completed with %s battles analyzed!' % len(lOriginalBattles))
 
 
-battleDeckPrinter('ladder', 5500, 8200, 300, 72)
+battleDeckPrinter('ladder', 5800, 6600, 200, 72)
 # battleDeckPrinter('ladder', 4600, 8200, 600, 72)
 # battleDeckPrinter('ladder', 4600, 8200, 0, 24)
-battleDeckPrinter('grand', 5500, 9000, 0, 72)
-battleDeckPrinter('classic', 5500, 9000, 0, 72)
+# battleDeckPrinter('grand', 5500, 9000, 0, 72)
+# battleDeckPrinter('classic', 5500, 9000, 0, 72)

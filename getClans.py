@@ -20,11 +20,6 @@ unofficialAPIToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQ0MywiaWRlb
 officialClient = clashroyale.official_api.Client(officialAPIToken)
 unofficialClient = clashroyale.royaleapi.Client(unofficialAPIToken)
 
-# Get the top x clans
-lTopClans = officialClient.get_top_clans(57000249, limit=1000)
-print(lTopClans)
-
-
 def add_clans():
     # Get the top x clans
     lTopClans = officialClient.get_top_clans(57000249, limit=1000)
