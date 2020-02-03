@@ -165,35 +165,40 @@ async def waitplz():
 
 
 def main(num_runs, b_update_databases, max_player_tags):
-    while num_runs > 0:
-        header_print('STARTING NEW RUN', 100)
-        if b_update_databases:
-            header_print('ADDING CLANS', 100)
-            add_clans()
-            header_print('ADDING CLAN PLAYERS', 100)
-            get_clan_players()
-            header_print('ADDING TOP PLAYERS', 100)
-            get_top_players()
-        # Select db clan players
-        conn = sqlite3.connect('clans.db')
-        cursor = conn.cursor()
-        if max_player_tags > 0:
-            sql_query_player = '''SELECT player_tag FROM players ORDER BY update_date ASC LIMIT %s''' % (
-                max_player_tags)
-        else:
-            sql_query_player = '''SELECT player_tag FROM players'''
-        lClanPlayersTags = [i[0] for i in cursor.execute(sql_query_player) if len(i[0]) > 5]
-        # Update the database for which players we are pulling now
-        cursor.execute("""UPDATE players
-                        SET update_date = datetime("now")
-                        WHERE player_tag IN (%s)""" % sql_query_player)
-        conn.commit()
-        num_runs -= 1
-        # Run the battlefinder script to get battles!
-        header_print('GATHERING BATTLES', 100)
-        asyncio.run(battlefinder(lClanPlayersTags))
+    try:
+        while num_runs != 0:
+            header_print('STARTING NEW RUN', 100)
+            if b_update_databases:
+                header_print('ADDING CLANS', 100)
+                add_clans()
+                header_print('ADDING CLAN PLAYERS', 100)
+                get_clan_players()
+                header_print('ADDING TOP PLAYERS', 100)
+                get_top_players()
+            # Select db clan players
+            conn = sqlite3.connect('clans.db')
+            cursor = conn.cursor()
+            if max_player_tags > 0:
+                sql_query_player = '''SELECT player_tag FROM players ORDER BY update_date ASC LIMIT %s''' % (
+                    max_player_tags)
+            else:
+                sql_query_player = '''SELECT player_tag FROM players'''
+            lClanPlayersTags = [i[0] for i in cursor.execute(sql_query_player) if len(i[0]) > 5]
+            # Update the database for which players we are pulling now
+            cursor.execute("""UPDATE players
+                            SET update_date = datetime("now")
+                            WHERE player_tag IN (%s)""" % sql_query_player)
+            conn.commit()
+            num_runs -= 1
+            # Run the battlefinder script to get battles!
+            header_print('GATHERING BATTLES', 100)
+            asyncio.run(battlefinder(lClanPlayersTags))
+    except:
+        pass
 
-main(2, False, 500000)
+
+main(1, False, 250000)
+# main(-1, False, 500000)
 
 cursor.close()
 conn.close()
