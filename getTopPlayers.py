@@ -27,7 +27,7 @@ def get_top_players():
     # Get the top x players
     lTopPlayers = officialClient.get_top_players(57000249, limit=5)
     # Add player tags to database
-    conn = sqlite3.connect('clans.db')
+    conn = sqlite3.connect(globals.databasename)
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS players(
         player_tag TEXT,

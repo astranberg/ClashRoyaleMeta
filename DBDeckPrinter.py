@@ -16,7 +16,7 @@ lTabColors = ['#E6B8B7', '#CCC0DA', '#92CDDC', '#FABF8F', '#8DB4E2', '#C4BD97']
 
 def battleDeckPrinter(battle_type, min_trophies, max_trophies, trophystep, max_battle_age_hours):
     # Connect to DB and select appropriate battles based on constraints argued
-    conn = sqlite3.connect('clans.db')
+    conn = sqlite3.connect(globals.databasename)
     cursor = conn.cursor()
     lOriginalBattles = [list(i) for i in cursor.execute(
         '''SELECT * FROM battles WHERE datetime(battle_time) > datetime('now', '-%s Hour') AND 
@@ -168,7 +168,7 @@ def battleDeckPrinter(battle_type, min_trophies, max_trophies, trophystep, max_b
     print('Completed with %s battles analyzed!' % len(lOriginalBattles))
 
 
-battleDeckPrinter('ladder', 6000, 6900, 300, 72)
+battleDeckPrinter('ladder', 5700, 6900, 300, 72)
 # battleDeckPrinter('ladder', 4600, 8200, 600, 72)
 # battleDeckPrinter('ladder', 4600, 8200, 0, 24)
 # battleDeckPrinter('grand', 5500, 9000, 0, 72)

@@ -30,7 +30,7 @@ async def get_clans(cr, clan_groups):
 
 def get_clan_players():
     # Add clan tags to database
-    conn = sqlite3.connect('clans.db')
+    conn = sqlite3.connect(globals.databasename)
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS players(
         player_tag TEXT,

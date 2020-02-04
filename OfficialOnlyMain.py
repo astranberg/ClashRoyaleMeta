@@ -124,7 +124,7 @@ async def main():
     print('Removed', battles_before - battles_after, 'duplicate values!')
     print(str(battles_after) + '/' + str(battles_before) + ' battles remain!')
     # add opposing players to database
-    conn = sqlite3.connect('clans.db')
+    conn = sqlite3.connect(globals.databasename)
     cursor = conn.cursor()
     dbplayerssbefore = len([i[0] for i in cursor.execute('''SELECT * FROM players''')])
     cursor.executemany('''INSERT OR IGNORE INTO players values (?, ?)''', lOppPlayerTags)
@@ -148,7 +148,7 @@ if b_update_databases:
 #####################
 
 # getting db clan players
-conn = sqlite3.connect('clans.db')
+conn = sqlite3.connect(globals.databasename)
 cursor = conn.cursor()
 lClanPlayersTags = [i[0] for i in cursor.execute('''SELECT player_tag FROM players''') if len(i[0]) > 5]
 max_player_tags = 500

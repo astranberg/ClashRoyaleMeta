@@ -51,7 +51,7 @@ async def battlefinder(lClanPlayersTags):
     iMaxTags = 1
     iMaxRate = 50  # 12
     lOppPlayerTags = []
-    conn = sqlite3.connect('clans.db')
+    conn = sqlite3.connect(globals.databasename)
     cursor = conn.cursor()
     dbplayerssbefore = len([i[0] for i in cursor.execute('''SELECT * FROM players''')])
     for iPlayerGroup in range(0, len(lClanPlayersTags), iMaxTags * iMaxRate):
@@ -176,7 +176,7 @@ def main(num_runs, b_update_databases, max_player_tags):
                 header_print('ADDING TOP PLAYERS', 100)
                 get_top_players()
             # Select db clan players
-            conn = sqlite3.connect('clans.db')
+            conn = sqlite3.connect(globals.databasename)
             cursor = conn.cursor()
             if max_player_tags > 0:
                 sql_query_player = '''SELECT player_tag FROM players ORDER BY update_date ASC LIMIT %s''' % (

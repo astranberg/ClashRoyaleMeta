@@ -1,7 +1,7 @@
 import sqlite3
 
 print('=' * 20, 'CLEANING DATABASE OF LOW-LEVEL PLAYERS', '=' * 20)
-conn = sqlite3.connect('clans.db')
+conn = sqlite3.connect(globals.databasename)
 cursor = conn.cursor()
 ###########################
 before = len([_ for _ in cursor.execute('SELECT * FROM battles')])

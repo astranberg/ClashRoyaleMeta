@@ -31,7 +31,7 @@ def add_clans():
     lClanTags = [[i, date.today()] for i in lClanTags if len(i) > 5]
     print('Number of Clans:', len(lClanTags))
     # Add clan tags to database
-    conn = sqlite3.connect('clans.db')
+    conn = sqlite3.connect(globals.databasename)
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS clans(
         clan_tag STRING,
