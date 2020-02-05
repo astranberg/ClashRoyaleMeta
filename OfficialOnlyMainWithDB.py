@@ -33,6 +33,19 @@ def makeunique(l):
             pass
     return res
 
+def makeunique_multi(l):
+    check = set()
+    res = []
+    for i in l:
+        x = ''
+        for j in i:
+            x = x + (j)
+        if not x in check:
+            res.append(i)
+            check.add(x)
+        else:
+            pass
+    return res
 
 async def get_battles(cr, clan_groups):
     return await asyncio.gather(*[
@@ -149,11 +162,16 @@ async def battlefinder(lClanPlayersTags):
     conn.close()
 
     # Print unknown decks to CSV
-    print('=' * 20, 'PRINTING UNKNOWN DECKS TO CSV', '=' * 20)
+    header_print('PRINTING UNKNOWN DECKS TO CSV', 100)
+    print(len(lUnknownDecks), 'unknown decks.')
+    arr_unique = makeunique_multi(lUnknownDecks)
+    print(len(arr_unique), 'unique unknown decks.')
+    arr_print = [i + [(lUnknownDecks.count(i))] for i in arr_unique]
+    list.sort(arr_print, key=lambda arr_print: arr_print[len(arr_print) - 1], reverse=True)
     with open('unknown_decks.csv', 'w+', newline='') as my_csv:
         csvWriter = csv.writer(my_csv, delimiter=',')
         try:
-            csvWriter.writerows(lUnknownDecks)
+            csvWriter.writerows(arr_print)
         except:
             pass
 
@@ -195,12 +213,12 @@ def main(num_runs, b_update_databases, max_player_tags):
             asyncio.run(battlefinder(lClanPlayersTags))
     except:
         pass
+    cursor.close()
+    conn.close()
 
 
-main(1, False, 250000)
+main(1, False, 50)
 # main(-1, False, 500000)
 
-cursor.close()
-conn.close()
 asyncio.run(waitplz())
 print('Done!')

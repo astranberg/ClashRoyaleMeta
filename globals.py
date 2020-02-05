@@ -6,7 +6,8 @@ def init():
     global officialAPIToken
     global unofficialAPIToken
     global databasename
-    databasename = 'Season8'
+    databasename = 'Season8.db'
+    databasename = 'clans.db'
     # Define Tokens
     officialAPIToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9" \
                        ".eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImYyZjUzYmI2LWIyMDQtNGRkYi1" \
