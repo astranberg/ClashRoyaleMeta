@@ -1,7 +1,11 @@
+import asyncio
 import clashroyale
 import sqlite3
 import logging
 from datetime import date
+import globals
+
+globals.init()
 
 logging.basicConfig(level=logging.INFO)
 
@@ -17,9 +21,8 @@ unofficialAPIToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQ0MywiaWRlb
                      "3NjgwMjAxMTk1Mn0.tUBrvk38lBSrg9ilpshqBD9PbzFoOqImLVrM8hUucLg"
 
 # Get Client Objects
-officialClient = clashroyale.official_api.Client(officialAPIToken)
+officialClient = clashroyale.official_api.Client(globals.officialAPIToken)
 unofficialClient = clashroyale.royaleapi.Client(unofficialAPIToken)
-
 
 async def get_clans(cr, clan_groups):
     return await asyncio.gather(*[
@@ -35,9 +38,10 @@ def get_clan_players():
     cursor.execute('''CREATE TABLE IF NOT EXISTS players(
         player_tag TEXT,
         update_date TEXT,
+        max_trophies TEXT,
         UNIQUE(player_tag));''')
     conn.commit()
-    dbplayerssbefore = len([i[0] for i in cursor.execute('''SELECT * FROM players''')])
+    dbplayerssbefore = len([i[0] for i in cursor.execute('''SELECT player_tag FROM players''')])
 
     # Define Variables
     lClanPlayersTags = []
@@ -53,15 +57,14 @@ def get_clan_players():
         lClanGroupTags = unofficialClient.get_clan(*lClanGroup)  # get data from all clans,* iterates the list into args
         for clan in lClanGroupTags:  # loop through each clan in the response
             players = [member['tag'].replace('#', '') for member in clan['members'] for clan in lClanGroupTags]
-            clanmembers = [[members['tag'].replace('#', ''), date.today()] for members in clan['members']]
+            clanmembers = [[members['tag'].replace('#', ''), date.today(), -1] for members in clan['members']]
             # clanmembers = zip([members['tag'].replace('#','') for members in clan['members']], date.today() * len(clan['members']))
-            cursor.executemany('''INSERT OR IGNORE INTO players values (?, ?)''', clanmembers)
-        print('Clan group', iClanGroup, 'has', len(lClanGroupTags), 'clans and',
+            cursor.executemany('''INSERT OR IGNORE INTO players values (?, ?, ?)''', clanmembers)
+        print('Clan group', iClanGroup, 'has', len(lClanGroupTags), 'of', len(lClans), 'clans and',
               len([member['tag'].replace('#', '') for member in clan['members'] for clan in lClanGroupTags]),
               'players.')
     conn.commit()
-    ldbplayers = [i[0] for i in cursor.execute('''SELECT * FROM players''')]
-    dbplayerssafter = len(ldbplayers)
+    dbplayerssafter = len([i[0] for i in cursor.execute('''SELECT player_tag FROM players''')])
     print('Added ' + str(dbplayerssafter - dbplayerssbefore) + ' players to database, which now has ' + str(
         dbplayerssafter) + ' players.')
     cursor.close()

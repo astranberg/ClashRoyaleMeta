@@ -2,6 +2,9 @@ from datetime import date
 import clashroyale
 import sqlite3
 import logging
+import globals
+
+globals.init()
 
 logging.basicConfig(level=logging.INFO)
 
@@ -32,11 +35,12 @@ def get_top_players():
     cursor.execute('''CREATE TABLE IF NOT EXISTS players(
         player_tag TEXT,
         update_date TEXT,
+        max_trophies TEXT,
         UNIQUE(player_tag));''')
     conn.commit()
     dbplayerssbefore = len([i[0] for i in cursor.execute('''SELECT * FROM players''')])
-    lTopPlayers = [[i.tag.replace('#', ''), date.today()] for i in lTopPlayers]
-    cursor.executemany('''INSERT OR IGNORE INTO players values (?, ?)''', lTopPlayers)
+    lTopPlayers = [[i.tag.replace('#', ''), date.today(), -1] for i in lTopPlayers]
+    cursor.executemany('''INSERT OR IGNORE INTO players values (?, ?, ?)''', lTopPlayers)
     conn.commit()
     ldbplayers = [i[0] for i in cursor.execute('''SELECT player_tag FROM players''')]
     dbplayerssafter = len(ldbplayers)

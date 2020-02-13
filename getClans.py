@@ -2,6 +2,9 @@ import clashroyale
 import sqlite3
 import logging
 from datetime import date
+import globals
+
+globals.init()
 
 logging.basicConfig(level=logging.INFO)
 

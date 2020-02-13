@@ -1,4 +1,7 @@
 import sqlite3
+import globals
+
+globals.init()
 
 print('=' * 20, 'CLEANING DATABASE OF LOW-LEVEL PLAYERS', '=' * 20)
 conn = sqlite3.connect(globals.databasename)
@@ -15,6 +18,13 @@ print('Deleted %s low-level players. There are now %s remaining' % (after - befo
 before = after
 cursor.execute("""DELETE from battles
                 WHERE datetime(battle_time) < datetime('now', '-7 Day')""")
+conn.commit()
+after = len([_ for _ in cursor.execute('SELECT * FROM battles')])
+print('Deleted %s low-level players. There are now %s remaining' % (after - before, str(after) + '/' + str(before)))
+###########################
+before = after
+cursor.execute("""DELETE from players
+                WHERE length(player_tag) < 6""")
 conn.commit()
 after = len([_ for _ in cursor.execute('SELECT * FROM battles')])
 print('Deleted %s low-level players. There are now %s remaining' % (after - before, str(after) + '/' + str(before)))
