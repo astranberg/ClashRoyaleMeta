@@ -13,7 +13,7 @@ async def get_players(cr, clan_groups):
     ])
 
 
-async def get_players_max_torphies(max_players_to_update):
+async def get_players_max_trophies(max_players_to_update):
     # Get Client Objects
     officialClient = clashroyale.official_api.Client(globals.officialAPIToken, is_async=True, timeout=999)
     conn = sqlite3.connect(globals.databasename)
@@ -27,9 +27,15 @@ async def get_players_max_torphies(max_players_to_update):
     # Loop through the players, iMaxTags at a time
     iMaxTags = 1
     iMaxRate = 50  # 12
-    lPlayersTags = [i[0] for i in cursor.execute(
-        '''SELECT player_tag FROM players WHERE max_trophies < 100 ORDER BY update_date ASC LIMIT %s''' % max_players_to_update)
-                    if len(i[0]) > 5]
+    if max_players_to_update > 0:
+        lPlayersTags = [i[0] for i in cursor.execute(
+            '''SELECT player_tag FROM players WHERE max_trophies < 100 ORDER BY update_date ASC LIMIT %s''' % max_players_to_update)
+                        if len(i[0]) > 5]
+    else:
+        lPlayersTags = [i[0] for i in cursor.execute(
+            '''SELECT player_tag FROM players WHERE max_trophies < 100 ORDER BY update_date ASC''')
+                        if len(i[0]) > 5]
+
     if len(lPlayersTags) == 0:
         lPlayersTags = [i[0] for i in cursor.execute(
             '''SELECT player_tag FROM players ORDER BY update_date ASC LIMIT %s''' % max_players_to_update) if
@@ -93,7 +99,7 @@ async def get_players_max_torphies(max_players_to_update):
             except clashroyale.errors.NotFoundError:
                 print('Not Found Error')
                 await asyncio.sleep(5)
-                continue
+                break
             # loop through battles and add to array
             for lPlayers in lAllPlayers:
                 cursor.execute("""UPDATE players
@@ -107,4 +113,4 @@ async def get_players_max_torphies(max_players_to_update):
     conn.close()
 
 
-asyncio.run(get_players_max_torphies(100000))
+asyncio.run(get_players_max_trophies(200))

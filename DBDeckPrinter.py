@@ -171,4 +171,3 @@ def battleDeckPrinter(battle_type, min_trophies, max_trophies, trophystep, max_b
 battleDeckPrinter('ladder', 4600, 7000, 300, 72)
 battleDeckPrinter('grand', 4600, 9000, 0, 72)
 battleDeckPrinter('classic', 4600, 9000, 0, 72)
-battleDeckPrinter('global_tournament', 4600, 9000, 0, 72)
