@@ -98,7 +98,7 @@ async def get_players_max_trophies(max_players_to_update):
                 continue
             except clashroyale.errors.NotFoundError:
                 print('Not Found Error')
-                await asyncio.sleep(5)
+                await asyncio.sleep(10)
                 break
             # loop through battles and add to array
             for lPlayers in lAllPlayers:
@@ -106,11 +106,14 @@ async def get_players_max_trophies(max_players_to_update):
                                 SET max_trophies=%s
                                 WHERE player_tag=%s""" % (
                     lPlayers['bestTrophies'], '"' + lPlayers['tag'].replace('#', '') + '"'))
-            conn.commit()
+            try:
+                conn.commit()
+            except:
+                pass
             break
     conn.commit()
     cursor.close()
     conn.close()
 
 
-asyncio.run(get_players_max_trophies(200))
+asyncio.run(get_players_max_trophies(0))
