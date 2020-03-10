@@ -68,10 +68,10 @@ def battleDeckPrinter(battle_type, min_trophies, max_trophies, trophystep, max_b
         maxT = minT + trophystep - (minT + trophystep < max_trophies)  # -1 if not the last trophy range
         # Filter the battles based on parameters given
         lBattles = [i for i in lOriginalBattles if
-                    minT <= i[3] <= maxT and minT <= i[6] <= maxT]  # i[3] and i[6] are winner and loser trophies
+                    minT <= i[3] <= maxT and minT <= i[7] <= maxT]  # i[3] and i[7] are winner and loser trophies
         # Get the unique archetypes present in these battles
         l_trophyrange_archetypes = [_[4] for _ in lBattles]
-        l_trophyrange_archetypes.extend(_[7] for _ in lBattles)
+        l_trophyrange_archetypes.extend(_[8] for _ in lBattles)
         l_trophyrange_archetypes = list(set(_ for _ in l_trophyrange_archetypes))
         # Create lists for win percentages and the prevalence of each archetype in this trophy range
         lWinTable = [[0.500] * len(l_trophyrange_archetypes) for _ in range(len(l_trophyrange_archetypes))]
@@ -84,16 +84,16 @@ def battleDeckPrinter(battle_type, min_trophies, max_trophies, trophystep, max_b
                 try:
                     lArchPrevalence[l_trophyrange_archetypes.index(archwinner)] = len(
                         [_ for _ in lBattles if _[4] == archwinner]) + len(
-                        [_ for _ in lBattles if _[7] == archwinner])
+                        [_ for _ in lBattles if _[8] == archwinner])
                 except:
                     lArchPrevalence[l_trophyrange_archetypes.index(archwinner)] = 0
                 for archloser in l_trophyrange_archetypes:
                     try:
                         lWinTable[l_trophyrange_archetypes.index(archwinner)][
                             l_trophyrange_archetypes.index(archloser)] = len(
-                            [(i) for i in lBattles if i[4] == archwinner and i[7] == archloser]) / (len(
-                            [(i) for i in lBattles if i[4] == archwinner and i[7] == archloser]) + len(
-                            [(i) for i in lBattles if i[7] == archwinner and i[4] == archloser]))
+                            [(i) for i in lBattles if i[4] == archwinner and i[8] == archloser]) / (len(
+                            [(i) for i in lBattles if i[4] == archwinner and i[8] == archloser]) + len(
+                            [(i) for i in lBattles if i[8] == archwinner and i[4] == archloser]))
                     except:
                         lWinTable[l_trophyrange_archetypes.index(archwinner)][
                             l_trophyrange_archetypes.index(archloser)] = 0.500
@@ -168,7 +168,8 @@ def battleDeckPrinter(battle_type, min_trophies, max_trophies, trophystep, max_b
     print('Completed with %s battles analyzed!' % len(lOriginalBattles))
 
 
-battleDeckPrinter('ladder', 4600, 7000, 300, 72)
-battleDeckPrinter('grand', 4600, 9000, 0, 72)
-battleDeckPrinter('classic', 4600, 9000, 0, 72)
-battleDeckPrinter('global_tournament', 4600, 9000, 0, 72)
+battleDeckPrinter('ladder', 5200, 7000, 300, 72)
+battleDeckPrinter('ladder', 5400, 7000, 200, 72)
+battleDeckPrinter('grand', 4000, 9000, 0, 72)
+battleDeckPrinter('classic', 4000, 9000, 0, 72)
+#battleDeckPrinter('global_tournament', 4600, 9000, 0, 72)
