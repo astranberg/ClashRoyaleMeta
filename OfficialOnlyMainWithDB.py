@@ -58,6 +58,7 @@ async def get_battles(cr, clan_groups):
 
 async def battlefinder(lClanPlayersTags):
     import globals
+    debug = False
     globals.init()
     lResults = []
     lUnknownDecks = []
@@ -83,16 +84,22 @@ async def battlefinder(lClanPlayersTags):
     conn.commit()
     dbplayerssbefore = len([i[0] for i in cursor.execute('''SELECT * FROM players''')])
     for iPlayerGroup in range(0, len(lClanPlayersTags), iMaxTags * iMaxRate):
+        if debug: print('X')
         lPlayerGroup = [lClanPlayersTags[x:(x + iMaxTags)] for x in
                         range(iPlayerGroup, min(len(lClanPlayersTags), iPlayerGroup + iMaxTags * iMaxRate), iMaxTags)]
+        if debug: print('Y')
         while True:
+            if debug: print('Z')
             try:
                 lAllPlayerBattles = await get_battles(officialClient, lPlayerGroup)
+                if debug: print('ZZ')
                 await asyncio.sleep(2)
+                if debug: print('ZZZ')
                 print(' Players', str(iPlayerGroup) + '-' + str(
                     min(len(lClanPlayersTags), iPlayerGroup + iMaxTags * iMaxRate)) + ' of ' + str(
                     len(lClanPlayersTags)),
                       'have', sum([len(_) for _ in lAllPlayerBattles]), 'battles.')
+                if debug: print('ZZZZ')
                 # loop through battles and add to array
                 # add a card meta report....maybe change the database so the cards in the deck are laid out?
                 # winner then loser: w1, w2, w3...w8, l1, l2, l3...l8
@@ -103,50 +110,51 @@ async def battlefinder(lClanPlayersTags):
                     for i in range(0, len(lPlayerBattles)):
                         if lPlayerBattles[i]['type'] == 'PvP' or lPlayerBattles[i]['type'] == 'challenge':
                             ##     ','.join([str(x['name']) for x in lUnknownDecks])
-                            print('aa')
+                            if debug: print('aa')
                             lPlyrDeck = archetype(lPlayerBattles[i]['team'][0]['cards'])
                             lOppDeck = archetype(lPlayerBattles[i]['opponent'][0]['cards'])
-                            print('bb')
+                            if debug: print('bb')
                             player_cards = ','.join([str(x['name']) for x in lPlayerBattles[i]['team'][0]['cards']])
-                            opponent_cards = ','.join([str(x['name']) for x in lPlayerBattles[i]['opponent'][0]['cards']])
-                            print('cc')
+                            opponent_cards = ','.join(
+                                [str(x['name']) for x in lPlayerBattles[i]['opponent'][0]['cards']])
+                            if debug: print('cc')
                             battle_type = lPlayerBattles[i]['gameMode']['name']
                             if battle_type.lower() == 'challenge':
                                 battle_type = lPlayerBattles[i]['challengeTitle']
                             if lPlayerBattles[i]['isLadderTournament'] == True:
                                 battle_type = 'global_tournament'
-                            print('dd')
+                            if debug: print('dd')
                             battle_date = datetime.strptime(lPlayerBattles[i]['battleTime'],
                                                             "%Y%m%dT%H%M%S.%fZ").isoformat()
-                            print('g')
+                            if debug: print('g')
                             if len(lPlyrDeck[1]) == 0:
                                 lUnknownDecks.append([i['name'].lower() for i in lPlayerBattles[i]['team'][0]['cards']])
-                            print('H')
+                            if debug: print('H')
                             if len(lOppDeck[1]) == 0:
                                 lUnknownDecks.append(
                                     [i['name'].lower() for i in lPlayerBattles[i]['opponent'][0]['cards']])
-                            print('h')
-                            try: # sometimes starting trophies is missing
+                            if debug: print('h')
+                            try:  # sometimes starting trophies is missing
                                 player_starting_trophies = lPlayerBattles[i]['team'][0]['startingTrophies']
                             except:
                                 player_starting_trophies = -1
-                            try: # sometimes starting trophies is missing
+                            try:  # sometimes starting trophies is missing
                                 opponent_starting_trophies = lPlayerBattles[i]['opponent'][0]['startingTrophies']
                             except:
                                 opponent_starting_trophies = -1
                             if opponent_starting_trophies > 4600:
-                                #print('hh')
+                                # print('hh')
                                 lOppPlayerTags.append([lPlayerBattles[i]['opponent'][0]['tag'], date.today(), -1])
-                            #print('i')
+                            # print('i')
                             if lPlayerBattles[i]['team'][0]['crowns'] > lPlayerBattles[i]['opponent'][0][
                                 'crowns']:  # player won
                                 lResults.append([battle_date,
                                                  battle_type,
-                                                 lPlayerBattles[i]['team'][0]['tag'].replace('#', ''),
+                                                 lPlayerBattles[i]['team'][0]['tag'],
                                                  player_starting_trophies,
                                                  lPlyrDeck[1],
                                                  player_cards,
-                                                 lPlayerBattles[i]['opponent'][0]['tag'].replace('#', ''),
+                                                 lPlayerBattles[i]['opponent'][0]['tag'],
                                                  opponent_starting_trophies,
                                                  lOppDeck[1],
                                                  opponent_cards])
@@ -164,7 +172,7 @@ async def battlefinder(lClanPlayersTags):
                                                  player_starting_trophies,
                                                  lPlyrDeck[1],
                                                  player_cards])
-                            #print('j')
+                            # print('j')
                 break
             except asyncio.exceptions.TimeoutError:
                 print('Asyncio Timeout Error!')
@@ -186,21 +194,24 @@ async def battlefinder(lClanPlayersTags):
                 print('Server Error')
                 await asyncio.sleep(5)
                 continue
-            #except:
+            # except:
             #    print('Unknown Error')
             #    await asyncio.sleep(5)
             #    continue
-        print('T')
+        if debug: print('T')
         lResults = makeunique(lResults)
-        print('U')
+        if debug: print('U')
         cursor.executemany('''INSERT OR IGNORE INTO battles values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', lResults)
-        print('V')
+        if debug: print('V')
         cursor.executemany('''INSERT OR IGNORE INTO players values (?, ?, ?)''', lOppPlayerTags)
-        print('W')
+        if debug: print('W')
         lResults = []
         lOppPlayerTags = []
+        if debug: print('WW')
         conn.commit()
+        if debug: print('WWW')
     print('ACTUALLY DONE')
+    await officialClient.close()
     # add opposing players to database
     cursor.executemany('''INSERT OR IGNORE INTO battles values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', lResults)
     conn.commit()
@@ -216,7 +227,7 @@ async def battlefinder(lClanPlayersTags):
     print(len(lUnknownDecks), 'unknown decks.')
     arr_unique = makeunique_multi(lUnknownDecks)
     print(len(arr_unique), 'unique unknown decks.')
-    arr_print = [i + [(lUnknownDecks.count(i))] for i in arr_unique]
+    arr_print = [i + [(lUnknownDecks.count(i))] for i in arr_unique if lUnknownDecks.count(i) > 25]
     list.sort(arr_print, key=lambda arr_print: arr_print[len(arr_print) - 1], reverse=True)
     with open('unknown_decks.csv', 'w+', newline='') as my_csv:
         csvWriter = csv.writer(my_csv, delimiter=',')
@@ -238,20 +249,25 @@ def main(num_runs, b_update_databases, min_player_max_trophies, max_player_tags)
             header_print('STARTING NEW RUN', 100)
             if b_update_databases:
                 header_print('ADDING TOP PLAYERS', 100)
-                get_top_players()
+                asyncio.run(get_top_players())
+                asyncio.run(asyncio.sleep(10))
                 header_print('ADDING CLANS', 100)
-                add_clans()
+                asyncio.run(add_clans())
+                asyncio.run(asyncio.sleep(10))
                 header_print('ADDING CLAN PLAYERS', 100)
-                get_clan_players()
+                asyncio.run(get_clan_players())
+                asyncio.run(asyncio.sleep(10))
             # Select db clan players
             conn = sqlite3.connect(globals.databasename)
             cursor = conn.cursor()
             if max_player_tags > 0:
-                sql_query_player = '''SELECT player_tag FROM players WHERE max_trophies >= %s ORDER BY update_date ASC LIMIT %s''' % (
+                sql_query_player = '''SELECT player_tag FROM players WHERE length(player_tag) > 5 AND max_trophies >= %s ORDER BY update_date ASC LIMIT %s''' % (
                     min_player_max_trophies, max_player_tags)
             else:
-                sql_query_player = '''SELECT player_tag FROM players'''
-            lClanPlayersTags = [i[0] for i in cursor.execute(sql_query_player) if len(i[0]) > 5]
+                sql_query_player = '''SELECT player_tag FROM players WHERE length(player_tag) > 5 AND max_trophies >= %s ORDER BY update_date ASC''' % (
+                    min_player_max_trophies)
+            lClanPlayersTags = [i[0] for i in cursor.execute(sql_query_player)]
+            print('Selected %s player tags' % len(lClanPlayersTags))
             # Update the database for which players we are pulling now
             cursor.execute("""UPDATE players
                             SET update_date = datetime("now")
@@ -260,19 +276,20 @@ def main(num_runs, b_update_databases, min_player_max_trophies, max_player_tags)
             num_runs -= 1
             # Run the battlefinder script to get battles!
             header_print('GATHERING BATTLES', 100)
-            #test
-            loop = asyncio.get_event_loop()
-            loop.run_until_complete(battlefinder(lClanPlayersTags))
-            #asyncio.run(battlefinder(lClanPlayersTags))
+            # test
+            # loop = asyncio.get_event_loop()
+            # try:
+            #    loop.run_until_complete(battlefinder(lClanPlayersTags))
+            # finally:
+            #    loop.close()
+            asyncio.run(battlefinder(lClanPlayersTags))
             cursor.close()
             conn.close()
-            loop.close()
     except:
         pass
 
 
-main(1, False, -1, -1)
-# main(-1, True, 500000)
+# main(3, False, 5600, -1)
+main(1, False, 5400, -1)
 
-asyncio.run(waitplz())
 print('Done!')

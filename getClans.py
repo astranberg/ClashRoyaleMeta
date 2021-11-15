@@ -1,3 +1,4 @@
+import asyncio
 import clashroyale
 import sqlite3
 import logging
@@ -19,11 +20,12 @@ unofficialAPIToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQ0MywiaWRlb
                      "Ijp7InVzZXJuYW1lIjoiS2luZ0tvbmciLCJkaXNjcmltaW5hdG9yIjoiOTcxOSIsImtleVZlcnNpb24iOjN9LCJ0cyI6MTU" \
                      "3NjgwMjAxMTk1Mn0.tUBrvk38lBSrg9ilpshqBD9PbzFoOqImLVrM8hUucLg "
 
-# Get Client Objects
-officialClient = clashroyale.official_api.Client(officialAPIToken)
-unofficialClient = clashroyale.royaleapi.Client(unofficialAPIToken)
 
-def add_clans():
+# unofficialClient = clashroyale.royaleapi.Client(unofficialAPIToken)
+
+async def add_clans():
+    # Get Client Objects
+    officialClient = clashroyale.official_api.Client(officialAPIToken)
     # Get the top x clans
     lTopClans = officialClient.get_top_clans(57000249, limit=1000)
     lBattleClans = officialClient.get_top_clanwar_clans(57000249, limit=1000)
@@ -50,3 +52,4 @@ def add_clans():
         dbclansafter) + ' clans.')
     cursor.close()
     conn.close()
+    await officialClient.close()

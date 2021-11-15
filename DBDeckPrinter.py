@@ -168,8 +168,9 @@ def battleDeckPrinter(battle_type, min_trophies, max_trophies, trophystep, max_b
     print('Completed with %s battles analyzed!' % len(lOriginalBattles))
 
 
-battleDeckPrinter('ladder', 5200, 7000, 300, 72)
-battleDeckPrinter('ladder', 5400, 7000, 200, 72)
-battleDeckPrinter('grand', 4000, 9000, 0, 72)
-battleDeckPrinter('classic', 4000, 9000, 0, 72)
-#battleDeckPrinter('global_tournament', 4600, 9000, 0, 72)
+# battleDeckPrinter('ladder', 5500, 5700, 0, 48)
+battleDeckPrinter('ladder', 5000, 7000, 300, 72)
+battleDeckPrinter('ladder', 5000, 7000, 600, 72)
+battleDeckPrinter('Challenge_AllCards_EventDeck', 5000, 9000, 0, 24)
+# battleDeckPrinter('classic challenge', 5000, 9000, 0, 24)
+# battleDeckPrinter('global_tournament', 4600, 9000, 0, 72)
