@@ -16,17 +16,19 @@ for i in range(0, len(globals.l_deck)):
     # print(globals.l_include[i])
     for include in globals.l_include[i]:
         # print(include)
-        if (len(match_phrase) == 0):
-            match_phrase += '"%s"' % (include)
-        else:
-            match_phrase += ' AND "%s"' % (include)
+        if len(include) > 0:
+            if (len(match_phrase) == 0):
+                match_phrase += '"%s"' % (include)
+            else:
+                match_phrase += ' AND "%s"' % (include)
     # print(globals.l_exclude[i])
     for exclude in globals.l_exclude[i]:
         # print(exclude)
-        match_phrase += ' NOT "%s"' % (exclude)
+        if len(exclude) > 0:
+            match_phrase += ' NOT "%s"' % (exclude)
     # print(match_phrase)
     sql_text = """UPDATE battles SET winner_decktype = "%s" WHERE ROWID IN (SELECT ROWID FROM winners WHERE cards MATCH '%s')""" % (
-    globals.l_deck[i], match_phrase)
+        globals.l_deck[i], match_phrase.strip())
     print(sql_text)
     cursor.execute(sql_text)
     conn.commit()

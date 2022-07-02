@@ -39,7 +39,7 @@ for iClanGroup in range(0, len(lTopClans), iMaxTags):
                   lTopClans[iClanGroup:min(iClanGroup + iMaxTags, len(lTopClans))]]  # get next 25 (or max) clans
     lClanGroup = list(OrderedDict.fromkeys(lClanGroup))  # remove duplicate tags
     lClanGroup = [x for x in lClanGroup if len(x) > 5]  # remove tags if 5 of less characters, as these will error
-    lClanGroupTags = unofficialClient.get_clan(*lClanGroup)  # get data from all clans,* iterates the list into args
+    lClanGroupTags = officialClient.get_clan(*lClanGroup)  # get data from all clans,* iterates the list into args
     print(' Clan group', iClanGroup, 'has', len(lClanGroupTags), 'clans.')
     for clan in lClanGroupTags:  # loop through each clan in the response
         for members in clan['members']:  # loop through each member in a clan

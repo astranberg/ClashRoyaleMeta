@@ -8,14 +8,22 @@ cursor = conn.cursor()
 
 print('=' * 20, 'OBTAINING STATISTICS', '=' * 20)
 
-num_clans = len([_ for _ in cursor.execute('SELECT * FROM clans')])
+num_clans = [i for i in cursor.execute('SELECT coalesce(MAX(ROWID)+1, 0) FROM clans')][0][0]
 print('Database contains %s clans.' % (num_clans))
 
-num_players = len([_ for _ in cursor.execute('SELECT * FROM players')])
+num_players = [i for i in cursor.execute('SELECT coalesce(MAX(ROWID)+1, 0) FROM players')][0][0]
 print('Database contains %s players.' % (num_players))
 
-num_battles = len([_ for _ in cursor.execute('SELECT * FROM battles')])
+num_battles = [i for i in cursor.execute('SELECT coalesce(MAX(ROWID)+1, 0) FROM battles')][0][0]
 print('Database contains %s battles.' % (num_battles))
+
+# print battle types
+battle_types = [x for x in cursor.execute('SELECT DISTINCT battle_type FROM battles')]
+bt = 'Battle types: '
+for types in battle_types:
+    bt += types[0] + ', '
+
+print(bt)
 
 # by trophy range
 num_players = len(

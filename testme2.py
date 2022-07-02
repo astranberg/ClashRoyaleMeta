@@ -17,28 +17,25 @@ clan_groups = [
     ['PYP8UPJV', 'P9L0CYY0', 'Y2RGQPJ', '8P2GYJ8', '9VQJPL2L'],
     ['RYPRGCJ', '809R8PG8', 'PJY9PP98', '2GCQLC', '2GL2QPPL']
 ]
+clan_group = ['PULJG98R', '2PLPJ9CL', '8PRVJC', '9RQP2G9Y', 'CQGRYV']
 
 
 async def get_clans(cr, clan_groups):
     return await asyncio.gather(*[
-        cr.get_clan(*group)
+        cr.get_clan(group)
         for group in clan_groups
     ])
 
 
 async def main():
-    cr = clashroyale.RoyaleAPI(
-        unofficialAPIToken,
-        is_async=True,
-        timeout=30
-    )
+    cr = clashroyale.official_api.Client(officialAPIToken, is_async=True, timeout=30)
     try:
-        results = await get_clans(cr, clan_groups)
-        print(results)
+        print(clan_group)
+        clan = await get_clans(cr, clan_group)
+        print(clan[1].tag)
     finally:
         await cr.close()
         await asyncio.sleep(2)
         print('end')
-
 
 asyncio.run(main())

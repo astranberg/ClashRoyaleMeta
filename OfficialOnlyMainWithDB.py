@@ -1,14 +1,16 @@
-from datetime import datetime
 import asyncio
-import logging
 import csv
-import clashroyale
-from BattleInterpreter import archetype
+import logging
 import sqlite3
-import globals
 from datetime import date
-from getClans import add_clans
+from datetime import datetime
+
+import clashroyale
+
+import globals
+from BattleInterpreter import archetype
 from getClanPlayers import get_clan_players
+from getClans import add_clans
 from getTopPlayers import get_top_players
 
 globals.init()
@@ -229,13 +231,14 @@ async def battlefinder(lClanPlayersTags):
     print(len(arr_unique), 'unique unknown decks.')
     arr_print = [i + [(lUnknownDecks.count(i))] for i in arr_unique if lUnknownDecks.count(i) > 25]
     list.sort(arr_print, key=lambda arr_print: arr_print[len(arr_print) - 1], reverse=True)
-    with open('unknown_decks.csv', 'w+', newline='') as my_csv:
+    with open(globals.deck_printer_path + 'unknown_decks.csv', 'w+', newline='') as my_csv:
         csvWriter = csv.writer(my_csv, delimiter=',')
         try:
             csvWriter.writerows(arr_print)
         except:
             pass
 
+    await officialClient.close()
     return lResults
 
 
@@ -290,6 +293,6 @@ def main(num_runs, b_update_databases, min_player_max_trophies, max_player_tags)
 
 
 # main(3, False, 5600, -1)
-main(1, False, 5400, -1)
+main(1, True, 5400, -1)
 
 print('Done!')

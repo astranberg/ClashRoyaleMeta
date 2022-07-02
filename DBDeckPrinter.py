@@ -6,6 +6,7 @@ import globals
 
 globals.init()
 
+deck_printer_path = "F:\Dropbox\Games\crmeta\\"
 
 def sumproduct(*lists):
     return sum(functools.reduce(operator.mul, data) for data in zip(*lists))
@@ -34,7 +35,7 @@ def battleDeckPrinter(battle_type, min_trophies, max_trophies, trophystep, max_b
     # Define XLSX workbook
     workbookname = battle_type + str(min_trophies) + "-" + str(max_trophies) + "Q" + str(trophystep) + 'last' + str(
         max_battle_age_hours) + "hours"
-    wb = xlsxwriter.Workbook(workbookname + '.xlsx')
+    wb = xlsxwriter.Workbook(deck_printer_path + workbookname + '.xlsx')
     print('Starting on workbook', workbookname)
     # Declare format variables for XLSX
     percentformat = wb.add_format()
@@ -169,8 +170,7 @@ def battleDeckPrinter(battle_type, min_trophies, max_trophies, trophystep, max_b
 
 
 # battleDeckPrinter('ladder', 5500, 5700, 0, 48)
-battleDeckPrinter('ladder', 5000, 7000, 300, 72)
-battleDeckPrinter('ladder', 5000, 7000, 600, 72)
-battleDeckPrinter('Challenge_AllCards_EventDeck', 5000, 9000, 0, 24)
+battleDeckPrinter('global_tournament', 5400, 7400, 0, 72)
+battleDeckPrinter('ladder', 5600, 7400, 600, 72)
+battleDeckPrinter('Challenge_AllCards_EventDeck', 5400, 7400, 0, 24)
 # battleDeckPrinter('classic challenge', 5000, 9000, 0, 24)
-# battleDeckPrinter('global_tournament', 4600, 9000, 0, 72)

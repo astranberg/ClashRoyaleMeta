@@ -12,7 +12,7 @@ cursor = conn.cursor()
 # cursor.execute("""DELETE from players
 #                WHERE player_tag IN (%s)""" % sql_query_player)
 # conn.commit()
-# after = len([_ for _ in cursor.execute('SELECT * FROM players')])
+after = len([_ for _ in cursor.execute('SELECT * FROM players')])
 # print('Deleted %s low-level winners. There are now %s players remaining' % (before - after, str(after) + '/' + str(before)))
 ###########################
 # before = len([_ for _ in cursor.execute('SELECT * FROM players')])
@@ -54,18 +54,18 @@ after = len([_ for _ in cursor.execute('SELECT player_tag FROM players WHERE SUB
 print('Added # to %s player_tags. There are now %s broken tags remaining' % (
 before - after, str(after) + '/' + str(before)))
 ###########################
-before = len([_ for _ in cursor.execute('SELECT * FROM battles')])
+before = [i for i in cursor.execute('SELECT coalesce(MAX(ROWID)+1, 0) FROM battles')][0][0]
 cursor.execute("""DELETE from battles
                 WHERE datetime(battle_time) < datetime('now', '-7 Day')""")
 conn.commit()
-after = len([_ for _ in cursor.execute('SELECT * FROM battles')])
+after = [i for i in cursor.execute('SELECT coalesce(MAX(ROWID)+1, 0) FROM battles')][0][0]
 print('Deleted %s old battles. There are now %s remaining' % (before - after, str(after) + '/' + str(before)))
 ###########################
-before = len([_ for _ in cursor.execute('SELECT * FROM players')])
+before = [i for i in cursor.execute('SELECT coalesce(MAX(ROWID)+1, 0) FROM players')][0][0]
 cursor.execute("""DELETE from players
                 WHERE length(player_tag) < 6""")
 conn.commit()
-after = len([_ for _ in cursor.execute('SELECT * FROM players')])
+after = [i for i in cursor.execute('SELECT coalesce(MAX(ROWID)+1, 0) FROM players')][0][0]
 print('Deleted %s invalidly-tagged players. There are now %s total players remaining' % (
 before - after, str(after) + '/' + str(before)))
 ###########################
