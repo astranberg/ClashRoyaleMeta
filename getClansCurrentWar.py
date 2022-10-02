@@ -48,6 +48,14 @@ def getClanRanked(json, rank):
             return clan['clan']['tag']
 
 
+def getNumParticipants(json):
+    count = 0
+    for player in json['participants']:
+        if player['fame'] > 0:
+            count += 1
+    return count
+
+
 def sortByFame(e):
     return e['fame']
 
@@ -57,7 +65,7 @@ def sortByPoints(e):
 
 
 def sortByLastProgress(e):
-    return e['periodPoints']
+    return e['progress']
 
 
 def get_clan_players():
@@ -101,7 +109,8 @@ def get_clan_players():
             for clanjson in resultjson['clans']:
                 lClans.append({'tag': clanjson['tag'], 'fame': int(clanjson['fame']),
                                'progress': int(getLastPeriodProgress(latestPeriod, clanjson['tag'])),
-                               'score': int(clanjson['clanScore'])})
+                               'score': int(clanjson['clanScore']),
+                               'participants': int(getNumParticipants(clanjson))})
             lClans.sort(key=sortByFame, reverse=True)
 
             if lClans[0]['score'] > 3000:
@@ -114,12 +123,13 @@ def get_clan_players():
                     lClans.sort(key=sortByLastProgress, reverse=True)
                 fameDistance = lClans[0]['fame'] - lClans[1]['fame']
                 progressDistance = lClans[0]['progress'] - lClans[1]['progress']
-                print(lClans)
+                # print(lClans)
                 if members < 50 and requiredtrophies < my_trophies and admittype != 'closed':
                     if bConsiderLastPeriod:
-                        print(lClans[0]['tag'], progressDistance, admittype)
+                        print(lClans[0]['tag'], progressDistance, admittype, lClans[0]['participants'],
+                              lClans[0]['progress'])
                     else:
-                        print(lClans[0]['tag'], fameDistance, admittype)
+                        print(lClans[0]['tag'], fameDistance, admittype, lClans[0]['participants'])
 
     conn.commit()
     cursor.close()
