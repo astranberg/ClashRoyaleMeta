@@ -21,7 +21,7 @@ def process_card_name(card):
 
 
 def get_card_elixir(card):
-    return officialClient.get_card_info("Archers")['elixir']
+    return officialClient.get_card_info(card)['elixir']
 
 
 def find_card_spoken(words, list_of_cards):
@@ -41,7 +41,6 @@ def get_top_players(sClan, sMember):
     lClans = [x for x in lClans if x.name.lower() == sClan.lower()]
     # print([x.name for x in lClans])
 
-    memberTag = ""
     print("%s clans found" % len(lClans))
     for clan in lClans:
         lMembers = officialClient.get_clan_members(clan.tag)
@@ -49,11 +48,12 @@ def get_top_players(sClan, sMember):
         print([x.name for x in lMembers])
         try:
             member = [x for x in lMembers if x.name.lower() == sMember.lower()][0]
-            memberTag = member.tag
             memberTrophies = member.trophies
+            memberTag = member.tag
             # print("")
             print(memberTag, memberTrophies)
         except:
+            memberTrophies = 0
             memberTag = ""
         if memberTag != "" and abs(memberTrophies - myTrophies) < 200:
             print("Found member ""%s"" (%s) in clan ""%s"" (%s)" % (sMember, memberTag, sClan, clan.tag))
@@ -68,7 +68,6 @@ def get_top_players(sClan, sMember):
             print("")
             print(lCards)
             return memberTag, lBattles, [x.icon_urls.medium for x in lDeck], [x.name.lower() for x in lDeck]
-            exit()
 
 
 def getLastDeck(lBattles):
@@ -78,7 +77,6 @@ def getLastDeck(lBattles):
             lDeck = battle.team[0].cards
             print(lDeck)
             return lDeck
-            exit()
 
 
 def getLastMatchingDeck(lBattles, lKnownCards):
@@ -89,14 +87,13 @@ def getLastMatchingDeck(lBattles, lKnownCards):
             lDeck_names_only = [process_card_name(x.name) for x in lDeck]
             bMatches = True
             for card in lKnownCards:
-                if not card in lDeck_names_only:
+                if card not in lDeck_names_only:
                     bMatches = False
                     print("Deck doesn't match", lDeck_names_only)
                     break
             if bMatches:
                 print("Deck matches!", lDeck_names_only)
                 return [x.icon_urls.medium for x in lDeck], lDeck_names_only
-                exit()
 
 
 def imageFromUrl(url):
@@ -105,7 +102,7 @@ def imageFromUrl(url):
     return response.raw.read()
 
 
-def getDeckUlrs(lDeck):
+def getDeckUrls(lDeck):
     urls = []
     for card in lDeck:
         if card == "unknown":
@@ -115,11 +112,12 @@ def getDeckUlrs(lDeck):
             urls.append(all_card_urls[i])
     return urls
 
+
 def createGUI():
     while True:
         # Create an input dialogue for inputting opponent name and opponent clan name
         layout = [
-            [sg.Text("Userame"), sg.InputText("", key='member')],
+            [sg.Text("Username"), sg.InputText("", key='member')],
             [sg.Text("Clan"), sg.InputText("", key='clan')],
             [sg.Button("Search"), sg.Button("Close")]]
         input_window = sg.Window(title="Opponent Finder", layout=layout, margins=(100, 50), finalize=True)
@@ -141,12 +139,11 @@ def createGUI():
         else:
             if member_name == "" or clan_name == "":
                 bNoDeckMatch = True
-                oppTag = ""
                 oppBattles = []
                 opponents_deck = []
                 for i in range(0, 8):
                     opponents_deck.append("unknown")
-                urls = getDeckUlrs(opponents_deck)
+                urls = getDeckUrls(opponents_deck)
                 print(opponents_deck)
                 print(urls)
                 lOppDeck = [imageFromUrl(urls[0]), imageFromUrl(urls[1]), imageFromUrl(urls[2]), imageFromUrl(urls[3]),
@@ -263,7 +260,7 @@ def createGUI():
                                     opponents_deck = lKnownCards[:]
                                     while len(opponents_deck) < 8:
                                         opponents_deck.insert(0, "unknown")
-                                    urls = getDeckUlrs(opponents_deck)
+                                    urls = getDeckUrls(opponents_deck)
                                     print(opponents_deck)
                                     print(urls)
                                     lOppDeck = [imageFromUrl(urls[0]), imageFromUrl(urls[1]), imageFromUrl(urls[2]),
