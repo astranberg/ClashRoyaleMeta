@@ -1,13 +1,12 @@
-import time
-
-import clashroyale
 import logging
-import speech_recognition as sr
-import requests
-import globals
+
 import PySimpleGUI as sg
-import pandas as pd
-import csv
+import clashroyale
+import requests
+import speech_recognition as sr
+from ThreadedFileLoader.ThreadedFileLoader import *
+
+import globals
 
 globals.init()
 logging.basicConfig(level=logging.INFO)
@@ -16,22 +15,18 @@ logging.basicConfig(level=logging.INFO)
 r = sr.Recognizer()
 mic = sr.Microphone()
 
-use_mic = True
-self_tag = "%23C899VP2"
-officialClient = clashroyale.official_api.Client(globals.officialAPIToken)
 
-cs = pd.read_csv("card_stats.csv", index_col=0).transpose().to_dict(orient='series')
-
-print(cs['Fireball']['TowerDamage' + '14'])
+def process_card_name(card):
+    return card.lower().replace("-", "").replace(".", "").replace("the", "").strip()
 
 
-# cs = pd.read_csv(r"card_stats.csv").to_dict()
-# print(cardstats["fireball"])
-# print(cs.values["Archers"])
+def get_card_elixir(card):
+    return officialClient.get_card_info("Archers")['elixir']
+
 
 def find_card_spoken(words, list_of_cards):
-    words = [x.lower().replace("-", "").replace("the", "").strip() for x in words]
-    list_of_cards = [x.lower().replace("-", "").replace("the", "").strip() for x in list_of_cards]
+    words = [process_card_name(x) for x in words]
+    list_of_cards = [process_card_name(x) for x in list_of_cards]
     for word in words:
         if word in list_of_cards:
             print(word)
@@ -53,12 +48,14 @@ def get_top_players(sClan, sMember):
         # print("="*100)
         print([x.name for x in lMembers])
         try:
-            memberTag = [x for x in lMembers if x.name.lower() == sMember.lower()][0].tag
+            member = [x for x in lMembers if x.name.lower() == sMember.lower()][0]
+            memberTag = member.tag
+            memberTrophies = member.trophies
             # print("")
-            # print(memberTag)
+            print(memberTag, memberTrophies)
         except:
             memberTag = ""
-        if memberTag != "":
+        if memberTag != "" and abs(memberTrophies - myTrophies) < 200:
             print("Found member ""%s"" (%s) in clan ""%s"" (%s)" % (sMember, memberTag, sClan, clan.tag))
             lBattles = officialClient.get_player_battles(memberTag)
             lDeck = getLastDeck(lBattles)
@@ -70,7 +67,7 @@ def get_top_players(sClan, sMember):
             lCards = [x.name + " (" + str(14 + x.level - x.maxLevel) + ")" for x in lDeck]
             print("")
             print(lCards)
-            return [x.icon_urls.medium for x in lDeck], [x.name.lower() for x in lDeck]
+            return memberTag, lBattles, [x.icon_urls.medium for x in lDeck], [x.name.lower() for x in lDeck]
             exit()
 
 
@@ -84,18 +81,46 @@ def getLastDeck(lBattles):
             exit()
 
 
+def getLastMatchingDeck(lBattles, lKnownCards):
+    for battle in lBattles:
+        if battle.deckSelection == "collection":
+            # print(battle)
+            lDeck = battle.team[0].cards
+            lDeck_names_only = [process_card_name(x.name) for x in lDeck]
+            bMatches = True
+            for card in lKnownCards:
+                if not card in lDeck_names_only:
+                    bMatches = False
+                    print("Deck doesn't match", lDeck_names_only)
+                    break
+            if bMatches:
+                print("Deck matches!", lDeck_names_only)
+                return [x.icon_urls.medium for x in lDeck], lDeck_names_only
+                exit()
+
+
 def imageFromUrl(url):
     response = requests.get(url, stream=True)
     response.raw.decode_content = True
     return response.raw.read()
 
 
+def getDeckUlrs(lDeck):
+    urls = []
+    for card in lDeck:
+        if card == "unknown":
+            urls.append(unknown_card)
+        else:
+            i = all_cards.index(card)
+            urls.append(all_card_urls[i])
+    return urls
+
 def createGUI():
     while True:
         # Create an input dialogue for inputting opponent name and opponent clan name
         layout = [
-            [sg.Text("Userame"), sg.InputText("good knight", key='member')],
-            [sg.Text("Clan"), sg.InputText("bad boyz club", key='clan')],
+            [sg.Text("Userame"), sg.InputText("", key='member')],
+            [sg.Text("Clan"), sg.InputText("", key='clan')],
             [sg.Button("Search"), sg.Button("Close")]]
         input_window = sg.Window(title="Opponent Finder", layout=layout, margins=(100, 50), finalize=True)
         input_window["clan"].bind("<Return>", "_Enter")
@@ -111,14 +136,28 @@ def createGUI():
         member_name = values['member']
         clan_name = values['clan']
         # Check that user actually submitted something, otherwise exit program
-        if member_name == "" or clan_name == "" or event == "Close":
+        if event == "Close":
             exit()
         else:
-            urls, opponents_deck = get_top_players(clan_name, member_name)
-            print(urls)
-            print(opponents_deck)
-            lOppDeck = [imageFromUrl(urls[0]), imageFromUrl(urls[1]), imageFromUrl(urls[2]), imageFromUrl(urls[3]),
-                        imageFromUrl(urls[4]), imageFromUrl(urls[5]), imageFromUrl(urls[6]), imageFromUrl(urls[7])]
+            if member_name == "" or clan_name == "":
+                bNoDeckMatch = True
+                oppTag = ""
+                oppBattles = []
+                opponents_deck = []
+                for i in range(0, 8):
+                    opponents_deck.append("unknown")
+                urls = getDeckUlrs(opponents_deck)
+                print(opponents_deck)
+                print(urls)
+                lOppDeck = [imageFromUrl(urls[0]), imageFromUrl(urls[1]), imageFromUrl(urls[2]), imageFromUrl(urls[3]),
+                            imageFromUrl(urls[4]), imageFromUrl(urls[5]), imageFromUrl(urls[6]), imageFromUrl(urls[7])]
+            else:
+                bNoDeckMatch = False
+                oppTag, oppBattles, urls, opponents_deck = get_top_players(clan_name, member_name)
+                print(urls)
+                print(opponents_deck)
+                lOppDeck = [imageFromUrl(urls[0]), imageFromUrl(urls[1]), imageFromUrl(urls[2]), imageFromUrl(urls[3]),
+                            imageFromUrl(urls[4]), imageFromUrl(urls[5]), imageFromUrl(urls[6]), imageFromUrl(urls[7])]
             layout = [
                 [sg.Text("Opponent: %s" % member_name)],
                 [sg.Text("Clan: %s" % clan_name)],
@@ -133,17 +172,6 @@ def createGUI():
             opponent_window = sg.Window(title="Opponents Deck", layout=layout, margins=(100, 50), finalize=True)
             opponent_window.refresh()
             time.sleep(1)
-            # move card to end
-            card = "archers"
-            urls.append(urls.pop(opponents_deck.index(card)))  # doesn't do anything just staying consistent
-            lOppDeck.append(lOppDeck.pop(opponents_deck.index(card)))
-            opponents_deck.append(opponents_deck.pop(opponents_deck.index(card)))
-            print(urls)
-            print(opponents_deck)
-            updateCardOrder(opponent_window, lOppDeck)
-            opponent_window.refresh()
-            time.sleep(1)
-            opponent_window.refresh()
             if not use_mic:
                 # Wait for button clicks
                 while True:
@@ -161,6 +189,8 @@ def createGUI():
             else:
                 # Start speech recognition!
                 with mic as source:
+                    # reset known cards in deck
+                    lKnownCards = []
                     # mic stuff
                     r.adjust_for_ambient_noise(source)
                     while True:
@@ -170,17 +200,85 @@ def createGUI():
                         # convert speech to text, then try to find the card spoken
                         try:
                             text = r.recognize_google(audio_data, show_all=True)
-                            words = [x['transcript'].lower() for x in text['alternative']]
+                            words = [process_card_name(x['transcript']) for x in text['alternative']]
                             # print(text)
                             print(words)
                             card_spoken = find_card_spoken(words, opponents_deck)
                         except:
                             words = []
                             card_spoken = ""
-                        if card_spoken == "" and "quit" in words:
+                        if card_spoken != "":
+                            if card_spoken == "log":
+                                card_spoken = "the log"
+                            # move card to end
+                            urls.append(urls.pop(
+                                opponents_deck.index(card_spoken)))  # doesn't do anything just staying consistent
+                            lOppDeck.append(lOppDeck.pop(opponents_deck.index(card_spoken)))
+                            opponents_deck.append(opponents_deck.pop(opponents_deck.index(card_spoken)))
+                            if card_spoken in lKnownCards:
+                                lKnownCards.append(lKnownCards.pop(lKnownCards.index(card_spoken)))
+                            print(urls)
+                            print(opponents_deck)
+                            updateCardOrder(opponent_window, lOppDeck)
+                            opponent_window.refresh()
+                        elif "quit" in words:
                             quit()
-                        elif card_spoken == "" and "next game" in words:
+                        elif "next game" in words:
                             break
+                        else:
+                            print('here')
+                            card_maybe_spoken = find_card_spoken(words, all_cards)
+                            if len(card_maybe_spoken) > 0 and card_maybe_spoken not in lKnownCards:
+                                lKnownCards.append(card_maybe_spoken)
+                                print("a", lKnownCards)
+                                print(opponents_deck)
+                                if bNoDeckMatch:
+                                    urls = []
+                                    opponents_deck = []
+                                else:
+                                    try:
+                                        urls, opponents_deck = getLastMatchingDeck(oppBattles, lKnownCards)
+                                    except:
+                                        urls = []
+                                        opponents_deck = []
+                                if len(opponents_deck) > 0:
+                                    print("pizza")
+                                    print(urls)
+                                    print(opponents_deck)
+                                    lOppDeck = [imageFromUrl(urls[0]), imageFromUrl(urls[1]), imageFromUrl(urls[2]),
+                                                imageFromUrl(urls[3]),
+                                                imageFromUrl(urls[4]), imageFromUrl(urls[5]), imageFromUrl(urls[6]),
+                                                imageFromUrl(urls[7])]
+                                    # move card to end
+                                    urls.append(urls.pop(
+                                        opponents_deck.index(
+                                            card_maybe_spoken)))  # doesn't do anything just staying consistent
+                                    lOppDeck.append(lOppDeck.pop(opponents_deck.index(card_maybe_spoken)))
+                                    opponents_deck.append(opponents_deck.pop(opponents_deck.index(card_maybe_spoken)))
+                                    # update screen
+                                    updateCardOrder(opponent_window, lOppDeck)
+                                else:
+                                    # We now have a custom made deck, with no known match
+                                    bNoDeckMatch = True
+                                    opponents_deck = lKnownCards[:]
+                                    while len(opponents_deck) < 8:
+                                        opponents_deck.insert(0, "unknown")
+                                    urls = getDeckUlrs(opponents_deck)
+                                    print(opponents_deck)
+                                    print(urls)
+                                    lOppDeck = [imageFromUrl(urls[0]), imageFromUrl(urls[1]), imageFromUrl(urls[2]),
+                                                imageFromUrl(urls[3]),
+                                                imageFromUrl(urls[4]), imageFromUrl(urls[5]), imageFromUrl(urls[6]),
+                                                imageFromUrl(urls[7])]
+                                    # move card to end
+                                    urls.append(urls.pop(
+                                        opponents_deck.index(
+                                            card_maybe_spoken)))  # doesn't do anything just staying consistent
+                                    lOppDeck.append(lOppDeck.pop(opponents_deck.index(card_maybe_spoken)))
+                                    opponents_deck.append(opponents_deck.pop(opponents_deck.index(card_maybe_spoken)))
+                                    lKnownCards.append(lKnownCards.pop(lKnownCards.index(card_maybe_spoken)))
+                                    # update screen
+                                    updateCardOrder(opponent_window, lOppDeck)
 
                         # gui stuff, prevent it from freezing
                         opponent_window.refresh()
@@ -195,19 +293,19 @@ def updateCardOrder(window, deck):
         window[i].update(data=deck[i], subsample=3)
 
 
-lDeck = getLastDeck(officialClient.get_player_battles(self_tag))
-lCards = [x.name + " (" + str(14 + x.level - x.maxLevel) + ")" for x in lDeck]
-lCardLevels = [(14 - x.maxLevel + x.level) for x in lDeck]
-print(cs['Archers']['Type'])
-lDeck2 = [x for x in cs if cs[x]['Type'] == "spell"]
+use_mic = True
+self_tag = "%23C899VP2"
+officialClient = clashroyale.official_api.Client(globals.officialAPIToken)
 
-print(lDeck2)
-# print(lCards)
+mySelf = officialClient.get_player(self_tag)
+myTrophies = mySelf.trophies
 
-# print([x.name for x in officialClient.get_all_cards()])
+unknown_card: str = "https://pngimg.com/uploads/question_mark/question_mark_PNG38.png"
 
-# createGUI()
+print(officialClient.get_all_cards())
+all_cards = [process_card_name(x['name']) for x in officialClient.get_all_cards()]
+all_card_urls = [x['iconUrls']['medium'] for x in officialClient.get_all_cards()]
+# all_card_images = [imageFromUrl(x) for x in all_card_urls]
+# all_card_images.append(imageFromUrl(unknown_card))
 
-# get_top_players("knights radiant", "Josh")
-
-# ideas - utilize spells in MY deck to show what combination of spells kills opponent cards
+createGUI()
