@@ -6,10 +6,10 @@ def init():
     global officialAPIToken
     global unofficialAPIToken
     global databasename
-    databasename = 'A:\ClashRoyaleMetaDBFile\SeasonX.db'
-    deck_printer_path = "F:\Dropbox\Games\crmeta\\"
+    databasename = r'C:\Users\adams\ClashRoyaleMeta\SeasonX.db'
+    deck_printer_path = r'C:\Users\adams\Dropbox\Games\crmeta\\'
     # Define Tokens
-    officialAPIToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6IjYyNTgwNTVkLTAyMDMtNDFhOS05NTRjLWUwNjNmYzk1ZDQ0ZCIsImlhdCI6MTY1NTE1NDEwMSwic3ViIjoiZGV2ZWxvcGVyLzZlYmYzNzdmLWVkNjQtMmFlZC02MjRhLWE3Nzg5YmM4OGZiNCIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyI3My43Ny41OC42MyJdLCJ0eXBlIjoiY2xpZW50In1dfQ.4wG7WwYjTQQIkd5_czrhLtmh2str4V1OmPLdTSG2RIrMufqJfk_BYmmf_Xz98kASYUfCJxtygn3UuMFHR7y4SA"
+    officialAPIToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6IjA3YjU3MDczLWQ2YzktNDdiZi04ZmM1LTIxZmE3OWFlOWFmZCIsImlhdCI6MTY3MzgxMDIxOCwic3ViIjoiZGV2ZWxvcGVyLzZlYmYzNzdmLWVkNjQtMmFlZC02MjRhLWE3Nzg5YmM4OGZiNCIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyI3My43Ny41OC42MyJdLCJ0eXBlIjoiY2xpZW50In1dfQ.u44nyRvxamdz1ig7wbbnViT_5a_ZBGyxS-yBey5bAEkfxMXRjGak6Z8-eXguW35Mj8VVlKj9-TQAxYVPi5J5JA"
     unofficialAPIToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQ0MywiaWRlbiI6IjIyNzk4NjE5NzM3MTE1ODUyOCIsIm1k" \
                          "Ijp7InVzZXJuYW1lIjoiS2luZ0tvbmciLCJkaXNjcmltaW5hdG9yIjoiOTcxOSIsImtleVZlcnNpb24iOjN9LCJ0cyI6MTU" \
                          "3NjgwMjAxMTk1Mn0.tUBrvk38lBSrg9ilpshqBD9PbzFoOqImLVrM8hUucLg "

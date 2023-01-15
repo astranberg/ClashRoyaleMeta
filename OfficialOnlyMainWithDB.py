@@ -251,9 +251,9 @@ def main(num_runs, b_update_databases, min_player_max_trophies, max_player_tags)
         while num_runs != 0:
             header_print('STARTING NEW RUN', 100)
             if b_update_databases:
-                header_print('ADDING TOP PLAYERS', 100)
-                asyncio.run(get_top_players())
-                asyncio.run(asyncio.sleep(10))
+                #header_print('ADDING TOP PLAYERS', 100)
+                #asyncio.run(get_top_players())
+                #asyncio.run(asyncio.sleep(10))
                 header_print('ADDING CLANS', 100)
                 asyncio.run(add_clans())
                 asyncio.run(asyncio.sleep(10))
@@ -293,6 +293,6 @@ def main(num_runs, b_update_databases, min_player_max_trophies, max_player_tags)
 
 
 # main(3, False, 5600, -1)
-main(1, True, 5400, -1)
+main(1, False, 5400, -1)
 
 print('Done!')
